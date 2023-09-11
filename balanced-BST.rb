@@ -107,16 +107,7 @@ class Tree
 
   def delete(value)
     # find the node with this value
-    target_node = @root
-    loop do
-      break if target_node.data == value
-
-      if value > target_node.data
-        target_node = target_node.right
-      else
-        target_node = target_node.left
-      end
-    end
+    target_node = find(value)
         
     # if the node is the root
     if target_node == @root
@@ -193,10 +184,69 @@ class Tree
     next_biggest
   end
 
+  def find(value)
+    target_node = @root
+    loop do
+      break if target_node.data == value
+
+      if value > target_node.data
+        target_node = target_node.right
+      else
+        target_node = target_node.left
+      end
+    end
+    target_node
+  end
+
+  def level_order
+    queue = []
+    arr = []
+    node = @root
+
+    loop do
+      if block_given?
+        yield node 
+      else
+        arr << node.data
+      end
+      # put into queue his children
+      queue << node.left if node.left
+      queue << node.right if node.right
+      
+      if queue.empty?
+        if block_given?
+          return
+        else
+          return arr
+        end
+      end
+      node = queue.shift
+    end
+  end
+
+  def level_order_recursive(node = @root, queue = [], arr = [], &block)
+    if block_given?
+      yield node
+    else
+      arr << node.data
+    end
+
+    # base case
+    return arr if queue.empty? && node != @root
+    
+    queue << node.left if node.left
+    queue << node.right if node.right
+
+    node = queue.shift
+    arr = level_order_recursive(node, queue, arr, &block)
+  end
+    
+
 end
 
 tree = Tree.new([1, 2, 3, 4, 11, 6, 7, 8, 9, 0, 12, 5, 14])
 
 tree.insert(10)
 tree.delete(6)
+p tree.level_order_recursive
 tree.pretty_print

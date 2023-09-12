@@ -240,7 +240,101 @@ class Tree
     node = queue.shift
     arr = level_order_recursive(node, queue, arr, &block)
   end
+
+  def preorder(node = @root, arr = [], &block)
+    if block_given?
+      yield node
+    else
+      arr << node.data
+    end
+
+    # base case
+    return arr if node.left.nil? && node.right.nil?
+
+    arr = preorder(node.left, arr, &block) if node.left
+    arr = preorder(node.right, arr, &block) if node.right
+    arr
+  end
+
+  def inorder(node = @root, arr = [], &block)
+    # base case
+    if node.left.nil? && node.right.nil?
+      if block_given?
+        yield node
+      else
+        arr << node.data
+      end
+      return arr
+    end
+
+    arr = inorder(node.left, arr, &block) if node.left
+    if block_given?
+      yield node
+    else
+      arr << node.data
+    end
+    arr = inorder(node.right, arr, &block) if node.right
+    arr
+  end
+
+  def postorder(node = @root, arr = [], &block)
+    # base case
+    if node.left.nil? && node.right.nil?
+      if block_given?
+        yield node
+      else
+        arr << node.data
+      end
+      return arr
+    end
     
+    arr = postorder(node.left, arr, &block) if node.left
+    arr = postorder(node.right, arr, &block) if node.right
+
+    if block_given?
+      yield node
+    else
+      arr << node.data
+    end
+    arr
+  end
+
+  def height(node)
+    
+    # base case
+    if node.left.nil? && node.right.nil?
+      return 0
+    end
+
+    left_level = 0
+    right_level = 0
+    if node.left
+      left_level = height(node.left) + 1
+    end
+    if node.right
+      right_level = height(node.right) + 1
+    end
+
+    return right_level > left_level ? right_level : left_level
+  end
+
+  def depth(node)
+    current = @root
+    level = 0
+
+    loop do
+      break if current.data == node.data
+
+      if node.data > current.data
+        current = current.right
+        level += 1
+      else
+        current = current.left
+        level += 1
+      end
+    end
+    level
+  end
 
 end
 
@@ -248,5 +342,6 @@ tree = Tree.new([1, 2, 3, 4, 11, 6, 7, 8, 9, 0, 12, 5, 14])
 
 tree.insert(10)
 tree.delete(6)
-p tree.level_order_recursive
-tree.pretty_print
+
+p tree.depth(tree.find(5))
+# tree.pretty_print

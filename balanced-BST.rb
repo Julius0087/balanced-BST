@@ -238,7 +238,7 @@ class Tree
     queue << node.right if node.right
 
     node = queue.shift
-    arr = level_order_recursive(node, queue, arr, &block)
+    level_order_recursive(node, queue, arr, &block)
   end
 
   def preorder(node = @root, arr = [], &block)
@@ -336,12 +336,16 @@ class Tree
     level
   end
 
+  def balanced?
+    left_height = height(@root.left)
+    right_height = height(@root.right)
+    difference = (left_height - right_height).abs
+
+    return difference > 1 ? false : true
+  end
+
+  def rebalance
+    arr = preorder
+    @root = build_tree(arr)
+  end
 end
-
-tree = Tree.new([1, 2, 3, 4, 11, 6, 7, 8, 9, 0, 12, 5, 14])
-
-tree.insert(10)
-tree.delete(6)
-
-p tree.depth(tree.find(5))
-# tree.pretty_print
